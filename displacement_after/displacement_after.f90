@@ -1,4 +1,3 @@
-program displacement_after
 !-----------------------------------------------------------------------------------------
 !計算が終了し、得られたnew_in_gm.datから
 !最終的な粒子の位置を読み込んで
@@ -26,37 +25,46 @@ program displacement_after
 !
 !
 !------------------------------------------------------------------------------------------
- implicit none
- real :: dtime, gx, gy
- integer :: mode, mode2, mode3, nmater, rho(i), akn(i), aks(i), cn(i), cs(i), phimu(i)
- real :: bdp(1), bdp(2), bdp(3), bdp(4), thick, vgx(k), vgy(k), vgw(k),
- &       rc(icr), xc(icr), yc(icr), wc(icr), edg1x, edg1y, edg2x, edg2y
- integer :: i, k, icr, nptotc, nptts1, nptts2, nptotl, idum, imater, nset(k), ik, iicr
+program displacement_after
+  implicit none
+
+  real :: dtime, gx, gy
+  integer :: mode1, mode2, mode3, nMater
+  integer, allocatable :: rho(:), akn(:), aks(:), cn(:), cs(:), phimu(:)
+  real :: bdp(1:4), thick
+  real, allocatable :: vgx(:), vgy(:), vgw(:), &
+       & rc(:), xc(:), yc(:), wc(:), &
+       & edg1x(:), edg1y(:), edg2x(:), edg2y(:)
+  integer :: i, k, icr, nptotc, nptts1, nptts2, nptotl, imater, ik, iicr
+  integer, allocatable :: nset(:)
   !ファイルnew_in_gm.datを開く
-  open(unit=20, file='new_in_gm.dat', status='old')
-  read(20,*) mode, mode2, mode3
+  open(unit=20, file='new_in_gm.dat', status='old', action = 'read')
+  read(20,*) mode1, mode2, mode3
   read(20,*) dtime, gx, gy
-  read(20,*) nmater
-    do i = 1, nmater
-      read(20,*) rho(i), akn(i), aks(i), cn(i), cs(i), phimu(i)
-    end do
+
+  read(20,*) nMater
+  allocate()
+  do i = 1, nMater
+     read(20,*) rho(i), akn(i), aks(i), cn(i), cs(i), phimu(i)
+  end do
+
   !計算する領域を読み込む
   read(20,*) bdp(1), bdp(2), bdp(3), bdp(4), thick
   !ここから粒子の読み込み
   read(20,*) nptotc, nptts1, nptts2
   nptotl = nptotc + nptts1 + nptts2
-    !粒子の数だけ読み込む
-    do k = 1, nptotl
-	  read(20,*) ik, imater, nset(k)
-	  read(20,*) vgx(k), vgy(k), vgw(k)
-	  　!粒子を構成する要素の数だけ読み込む
-	    do icr = 1, nset(k)
-		  if(k.le.nptotc) then
-            read(20,*) iicr, rc(icr)
-            read(20,*) xc(icr), yc(icr), wc(icr)
-		  else
-		    read(2,*) iicr, edg1x, edg1y
-            read(2,*) edg2x, edg2y
-		end do
-	end do
-  close(20)
+  !粒子の数だけ読み込む
+  do k = 1, nptotl
+     read(20,*) ik, imater, nset(k)
+     read(20,*) vgx(k), vgy(k), vgw(k)
+     　!粒子を構成する要素の数だけ読み込む
+     do icr = 1, nset(k)
+        if(k.le.nptotc) then
+           read(20,*) iicr, rc(icr)
+           read(20,*) xc(icr), yc(icr), wc(icr)
+        else
+           read(2,*) iicr, edg1x, edg1y
+           read(2,*) edg2x, edg2y
+        end do
+     end do
+     close(20)
