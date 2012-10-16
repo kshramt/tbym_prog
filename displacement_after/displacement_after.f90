@@ -44,7 +44,6 @@ program displacement_after
   Integer:: io
   type(BinnedHeights), allocatable:: bins(:)
   type(DisplacementAfterConfig):: config
-  logical, allocatable:: nset_mask(:, :)
 
   Integer, parameter:: N_ELEMENT_PAR_PARTICLE_MAX = 2
 
@@ -108,8 +107,7 @@ program displacement_after
   ! 必要なパラメータは、binの数です。
 
   call load_displacement_aflter_config(config)
-  call get_nset_mask(nset(1:nptotc), nset_mask)
-  call get_bins(config, bdp(1), bdp(2), rc, xc, yc, nset_mask, bins)
+  call get_bins(config, bdp(1), bdp(2), rc, xc, yc, bins)
 
   do i = 1, size(bins)
     print*, bins(i)%xCenter, bins(i)%height
@@ -120,20 +118,21 @@ program displacement_after
 contains
 
   ! これが、メインのルーチン
-  subroutine get_bins(config, xMin, xMax, rc, xc, yc, nset_mask, bins)
+  subroutine get_bins(config, xMin, xMax, rc, xc, yc, bins)
     type(DisplacementAfterConfig), intent(in):: config
     real, intent(in):: xMin, xMax
     real, intent(in):: rc(:, :), xc(:, :), yc(:, :)
-    logical, intent(in):: nset_mask(:, :)
     type(BinnedHeights), intent(out), allocatable:: bins(:)
 
-    real:: width, xLeft, xRight
-    integer:: i
-    integer:: maxValLoc(1:2)
+    real:: width, xLeft, xRight, height
+    integer:: i, j, k
 
     allocate(bins(1:config%nBins))
     width = (xMax - xMin)/config%nBins
-    forall(i = 1:config%nBins) bins(i)%width = width
+    forall(i = 1:config%nBins)
+      bins(i)%width = width
+      bins(i)%height = 0
+    end forall
 
     do i = 1, config%nBins
       xLeft = width*(i - 1)
@@ -141,22 +140,17 @@ contains
       bins(i)%xCenter = (xLeft + xRight)/2
 
       bins(i)%isIncludeLeft = .true.
-      maxValLoc = maxloc(yc, nset_mask .and. xLeft <= xc .and. xc < xRight) ! ここで、高さ最大の要素の添字を求めている。
-      bins(i)%height = yc(maxValLoc(1), maxValLoc(2)) + rc(maxValLoc(1), maxValLoc(2))
+      bins(i)%height = 0
+      do j = 1, size(yc)
+        do k = 1, nset(j)
+          if(xLeft <= xc(j, k) .and. xc(j, k) < xRight)then
+            height =  yc(j, k) + rc(j, k)
+            if(height > bins(i)%height) bins(i)%height = height
+          end if
+        end do
+      end do
     end do
   end subroutine get_bins
-
-  ! nsetをもとに、heightを探す要素達のマスクを返す。
-  subroutine get_nset_mask(nset, nset_mask)
-    integer, intent(in):: nset(:)
-    logical, intent(out), allocatable:: nset_mask(:, :)
-    integer:: i
-
-    allocate(nset_mask(1:size(nset), 1:N_ELEMENT_PAR_PARTICLE_MAX))
-    nset_mask = .false.
-
-    forall(i = 1:size(nset)) nset_mask(i, 1:nset(i)) = .true.
-  end subroutine get_nset_mask
 
   ! WORKING_DIR/inputs/displacement_after_config.nml
   ! に、このプログラムで使う様々なパラメタを登録しておく。
