@@ -1,4 +1,4 @@
-requrie 'fileutils'
+require 'fileutils'
 
 FORTRAN_COMPILER = "gfortran-mp-4.7"
 FORTRAN_OPTIONS = %w[
