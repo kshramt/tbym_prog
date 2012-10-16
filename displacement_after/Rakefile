@@ -1,0 +1,27 @@
+requrie 'fileutils'
+
+FORTRAN_COMPILER = "gfortran-mp-4.7"
+FORTRAN_OPTIONS = %w[
+  -Wall
+  -ffree-line-length-none
+  -cpp
+  -fmax-identifier-length=63
+  -fbacktrace -pipe
+].join(' ')
+
+task default: :compile
+task compile: %w[displacement_after.exe]
+
+task :test do
+  FileUtils.cd('test'){
+    sh "../displacement_after.exe"
+  }
+end
+
+file "displacement_after.exe" => %w[lib_character.o lib_io.o displacement_after.o] do |t|
+  sh "#{FORTRAN_COMPILER} #{FORTRAN_OPTIONS} -o #{t.name} #{t.prerequisites.join(' ')}"
+end
+
+rule ".o" => ".f90" do |t|
+  sh "#{FORTRAN_COMPILER} #{FORTRAN_OPTIONS} -c #{t.source}"
+end
