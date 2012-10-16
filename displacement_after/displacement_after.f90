@@ -26,7 +26,7 @@ program displacement_after
   real :: bdp(1:4), thick
   real, allocatable :: vgx(:), vgy(:), vgw(:)
   real, allocatable ::rc(:, :), xc(:, :), yc(:, :), wc(:, :), & ! k番目の粒子のicr番目の要素の値
-       & edg1x(:, :), edg1y(:, :), edg2x(:, :), edg2y(:, :)
+    & edg1x(:, :), edg1y(:, :), edg2x(:, :), edg2y(:, :)
   integer :: i, k, icr, nptotc, nptts1, nptts2, nParticlesTotal, imater, ik, iicr
   integer, allocatable :: nset(:)
 
@@ -40,7 +40,7 @@ program displacement_after
   allocate(rho(nmater), akn(nmater), aks(nmater), cn(nmater), cs(nmater), phimu(nmater))
 
   do i = 1, nMater
-     read(20, *) rho(i), akn(i), aks(i), cn(i), cs(i), phimu(i)
+    read(20, *) rho(i), akn(i), aks(i), cn(i), cs(i), phimu(i)
   end do
 
   !計算する領域を読み込む
@@ -53,19 +53,19 @@ program displacement_after
 
   !粒子の数だけ読み込む
   do k = 1, nParticlesTotal
-     read(20, *) ik, imater, nset(k)
-     read(20, *) vgx(k), vgy(k), vgw(k)
+    read(20, *) ik, imater, nset(k)
+    read(20, *) vgx(k), vgy(k), vgw(k)
 
-     !粒子を構成する要素の数だけ読み込む
-     do icr = 1, nset(k)
-        if(k <= nptotc) then
-           read(20, *) iicr, rc(k, icr)
-           read(20, *) xc(k, icr), yc(k, icr), wc(k, icr)
-        else
-           read(20, *) iicr, edg1x(k, icr), edg1y(k, icr)
-           read(20, *) edg2x(k, icr), edg2y(k, icr)
-         end if
-     end do
+    !粒子を構成する要素の数だけ読み込む
+    do icr = 1, nset(k)
+      if(k <= nptotc) then
+        read(20, *) iicr, rc(k, icr)
+        read(20, *) xc(k, icr), yc(k, icr), wc(k, icr)
+      else
+        read(20, *) iicr, edg1x(k, icr), edg1y(k, icr)
+        read(20, *) edg2x(k, icr), edg2y(k, icr)
+      end if
+    end do
   end do
 
   close(20)
