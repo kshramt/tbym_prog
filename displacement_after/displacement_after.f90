@@ -153,17 +153,13 @@ contains
   ! に、このプログラムで使う様々なパラメタを登録しておく。
   subroutine load_displacement_aflter_config(config)
     type(DisplacementAfterConfig), intent(out):: config
-    integer:: nBins, nElementsParParticleMax
 
     integer:: io
-    namelist /displacement_after_config/ nBins, nElementsParParticleMax
+    namelist /displacement_after_config/ config
 
     call new_unit(io)
     open(unit = io, file = 'inputs/displacement_after_config.nml', status = 'old', action = 'read')
     read(io, nml = displacement_after_config)
     close(io)
-
-    config%nBins = nBins
-    config%nElementsParParticleMax = nElementsParParticleMax
   end subroutine load_displacement_aflter_config
 end program displacement_after

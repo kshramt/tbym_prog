@@ -1,4 +1,4 @@
 &displacement_after_config
-  nBins = 10,
-  nElementsParParticleMax = 2,
+  config%nBins = 10,
+  config%nElementsParParticleMax = 2,
 /
