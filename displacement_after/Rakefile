@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 require 'fileutils'
 require 'tmpdir'
-require 'tempfile'
 
 FORTRAN_COMPILER = "gfortran-mp-4.7"
 FORTRAN_OPTIONS = %w[
