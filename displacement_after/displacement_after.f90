@@ -25,6 +25,7 @@ program displacement_after
 
   type DisplacementAfterConfig
     integer:: nBins
+    integer:: nElementsParParticleMax
   end type DisplacementAfterConfig
 
   type BinnedHeights
@@ -45,7 +46,7 @@ program displacement_after
   type(BinnedHeights), allocatable:: bins(:)
   type(DisplacementAfterConfig):: config
 
-  Integer, parameter:: N_ELEMENT_PAR_PARTICLE_MAX = 2
+  call load_displacement_aflter_config(config)
 
   !ファイルnew_in_gm.datを開く
   call new_unit(io)
@@ -71,15 +72,15 @@ program displacement_after
   nParticlesTotal = nptotc + nptts1 + nptts2
   allocate(vgx(nParticlesTotal), vgy(nParticlesTotal), vgw(nParticlesTotal))
   allocate(&
-    & rc(1:nptotc, 1:N_ELEMENT_PAR_PARTICLE_MAX), &
-    & xc(1:nptotc, 1:N_ELEMENT_PAR_PARTICLE_MAX), &
-    & yc(1:nptotc, 1:N_ELEMENT_PAR_PARTICLE_MAX), &
-    & wc(1:nptotc, 1:N_ELEMENT_PAR_PARTICLE_MAX), &
+    & rc(1:nptotc, 1:config%nElementsParParticleMax), &
+    & xc(1:nptotc, 1:config%nElementsParParticleMax), &
+    & yc(1:nptotc, 1:config%nElementsParParticleMax), &
+    & wc(1:nptotc, 1:config%nElementsParParticleMax), &
     & nset(1:nParticlesTotal), &
-    & edg1x(1:nParticlesTotal, 1:N_ELEMENT_PAR_PARTICLE_MAX), &
-    & edg1y(1:nParticlesTotal, 1:N_ELEMENT_PAR_PARTICLE_MAX), &
-    & edg2x(1:nParticlesTotal, 1:N_ELEMENT_PAR_PARTICLE_MAX), &
-    & edg2y(1:nParticlesTotal, 1:N_ELEMENT_PAR_PARTICLE_MAX))
+    & edg1x(1:nParticlesTotal, 1:config%nElementsParParticleMax), &
+    & edg1y(1:nParticlesTotal, 1:config%nElementsParParticleMax), &
+    & edg2x(1:nParticlesTotal, 1:config%nElementsParParticleMax), &
+    & edg2y(1:nParticlesTotal, 1:config%nElementsParParticleMax))
 
   !粒子の数だけ読み込む
   do k = 1, nParticlesTotal
@@ -106,7 +107,6 @@ program displacement_after
   ! binで区切って、それぞれのbinの中心のx座標と粒子の最大高さを求めます。
   ! 必要なパラメータは、binの数です。
 
-  call load_displacement_aflter_config(config)
   call get_bins(config, bdp(1), bdp(2), rc, xc, yc, bins)
 
   do i = 1, size(bins)
@@ -153,10 +153,10 @@ contains
   ! に、このプログラムで使う様々なパラメタを登録しておく。
   subroutine load_displacement_aflter_config(config)
     type(DisplacementAfterConfig), intent(out):: config
-    integer:: nBins
+    integer:: nBins, nElementsParParticleMax
 
     integer:: io
-    namelist /displacement_after_config/ nBins
+    namelist /displacement_after_config/ nBins, nElementsParParticleMax
 
     call new_unit(io)
     open(unit = io, file = 'inputs/displacement_after_config.nml', status = 'old', action = 'read')
@@ -164,5 +164,6 @@ contains
     close(io)
 
     config%nBins = nBins
+    config%nElementsParParticleMax = nElementsParParticleMax
   end subroutine load_displacement_aflter_config
 end program displacement_after
