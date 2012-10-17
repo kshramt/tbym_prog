@@ -5,6 +5,7 @@ FORTRAN_OPTIONS = %w[
   -Wall
   -ffree-line-length-none
   -cpp
+  -C
   -fmax-identifier-length=63
   -fbacktrace -pipe
 ].join(' ')
