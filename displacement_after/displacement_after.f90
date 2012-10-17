@@ -129,10 +129,8 @@ contains
 
     allocate(bins(1:config%nBins))
     width = (xMax - xMin)/config%nBins
-    forall(i = 1:config%nBins)
-      bins(i)%width = width
-      bins(i)%height = 0
-    end forall
+    bins%width = width
+    bins%height = 0
 
     do i = 1, config%nBins
       xLeft = width*(i - 1)
