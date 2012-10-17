@@ -46,7 +46,7 @@ program displacement_after
   type(BinnedHeights), allocatable:: bins(:)
   type(DisplacementAfterConfig):: config
 
-  call load_displacement_aflter_config(config)
+  call load_config(config)
 
   !ファイルnew_in_gm.datを開く
   call new_unit(io)
@@ -151,15 +151,15 @@ contains
 
   ! WORKING_DIR/inputs/displacement_after_config.nml
   ! に、このプログラムで使う様々なパラメタを登録しておく。
-  subroutine load_displacement_aflter_config(config)
+  subroutine load_config(config)
     type(DisplacementAfterConfig), intent(out):: config
 
     integer:: io
     namelist /displacement_after_config/ config
 
     call new_unit(io)
-    open(unit = io, file = 'inputs/displacement_after_config.nml', status = 'old', action = 'read')
+    open(unit = io, file = 'inputs/displacement_after.nml', status = 'old', action = 'read')
     read(io, nml = displacement_after_config)
     close(io)
-  end subroutine load_displacement_aflter_config
+  end subroutine load_config
 end program displacement_after
