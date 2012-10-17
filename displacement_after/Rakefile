@@ -13,7 +13,7 @@ FORTRAN_OPTIONS = %w[
   -fbacktrace -pipe
 ].join(' ')
 
-CPP = "cpp-mp-4.8"
+CPP = "cpp-mp-4.7"
 CPP_OPTIONS = %w[
   -C
 ].join(' ')
