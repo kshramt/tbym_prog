@@ -1,4 +1,7 @@
+# -*- coding: utf-8 -*-
 require 'fileutils'
+require 'tmpdir'
+require 'tempfile'
 
 FORTRAN_COMPILER = "gfortran-mp-4.7"
 FORTRAN_OPTIONS = %w[
@@ -8,6 +11,11 @@ FORTRAN_OPTIONS = %w[
   -C
   -fmax-identifier-length=63
   -fbacktrace -pipe
+].join(' ')
+
+CPP = "cpp-mp-4.8"
+CPP_OPTIONS = %w[
+  -C
 ].join(' ')
 
 task default: :compile
@@ -24,5 +32,10 @@ file "displacement_after.exe" => %w[lib_character.o lib_io.o displacement_after.
 end
 
 rule ".o" => ".f90" do |t|
-  sh "#{FORTRAN_COMPILER} #{FORTRAN_OPTIONS} -c #{t.source}"
+  Dir.mktmpdir{|tmpdir|
+    tempfile = File.join(tmpdir, t.source)
+    FileUtils.mkdir_p File.dirname(tempfile)
+    sh "#{CPP} #{CPP_OPTIONS} #{t.source} > #{tempfile}" # ifort対応で、個別にcppしている。
+    sh "#{FORTRAN_COMPILER} #{FORTRAN_OPTIONS} -c #{tempfile}"
+  }
 end

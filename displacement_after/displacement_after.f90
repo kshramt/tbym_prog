@@ -18,7 +18,9 @@
 !nset(k)　　:粒子を作る要素数
 !vgx(k), vgy(k), vgw(k)   :粒子に与える初速
 !------------------------------------------------------------------------------------------
+#include "utils.h"
 program displacement_after
+  USE_UTILS_H
   use lib_io, only: new_unit
 
   implicit none
@@ -161,5 +163,13 @@ contains
     open(unit = io, file = 'inputs/displacement_after.nml', status = 'old', action = 'read')
     read(io, nml = displacement_after_config)
     close(io)
+    call validate_config(config)
   end subroutine load_config
+
+  subroutine validate_config(config)
+    type(DisplacementAfterConfig), intent(in):: config
+
+    RAISE_IF(config%nBins < 1)
+    RAISE_IF(config%nElementsParParticleMax < 1)
+  end subroutine validate_config
 end program displacement_after
