@@ -20,7 +20,7 @@ CPP_OPTIONS = %w[
 task default: :compile
 task compile: %w[displacement_after.exe]
 
-task :test do
+task test: :compile do
   FileUtils.cd('test'){
     sh "../displacement_after.exe"
   }
