@@ -111,7 +111,7 @@ program displacement_after
 
   call get_bins(config, bdp(1), bdp(2), rc, xc, yc, bins)
 
-  do i = 1, size(bins)
+  do i = 1, size(bins, 1)
     print*, bins(i)%xCenter, bins(i)%height
   end do
 
