@@ -140,7 +140,7 @@ contains
       bins(i)%xCenter = (xLeft + xRight)/2
 
       bins(i)%isIncludeLeft = .true.
-      do j = 1, size(yc)
+      do j = 1, size(yc, 1)
         do k = 1, nset(j)
           if(xLeft <= xc(j, k) .and. xc(j, k) < xRight)then
             height =  yc(j, k) + rc(j, k)
