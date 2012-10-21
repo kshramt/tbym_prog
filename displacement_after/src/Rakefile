@@ -25,6 +25,9 @@ BIN = lambda{|file|
   exes << (exe = File.join('../bin', file))
   exe
 }
+MODULES = lambda{|*files|
+  files.flatten.map{|f| %w[.o .mod].map{|suf| f + suf}}.flatten
+}
 
 [
  :test,
@@ -35,18 +38,20 @@ BIN = lambda{|file|
   end
 }
 
-file BIN["displacement_after.exe"] => %w[lib_character.o lib_io.o lib_displacement_after.o displacement_after.o] do |t|
-  sh "#{CONFIG.fortran} #{CONFIG.fortran_options} -o #{t.name} #{t.prerequisites.join(' ')}"
+file BIN["displacement_after.exe"] => MODULES[%w[lib_character lib_io lib_displacement_after]] + ['displacement_after.o'] do |t|
+  sh "#{CONFIG.fortran} #{CONFIG.fortran_options} -o #{t.name} #{t.prerequisites.delete_if{|f| f =~ /\.mod\z/}.join(' ')}"
 end
 
-rule ".o" => ".f90" do |t|
-  Dir.mktmpdir{|tmpdir|
-    tempfile = File.join(tmpdir, t.source)
-    FileUtils.mkdir_p File.dirname(tempfile)
-    sh "#{CONFIG.cpp} #{CONFIG.cpp_options} #{t.source} > #{tempfile}" # ifort対応で、個別にcppしている。
-    sh "#{CONFIG.fortran} #{CONFIG.fortran_options} -c #{tempfile}"
-  }
-end
+%w[.o .mod].each{|suf|
+  rule suf => ".f90" do |t|
+    Dir.mktmpdir{|tmpdir|
+      tempfile = File.join(tmpdir, t.source)
+      FileUtils.mkdir_p File.dirname(tempfile)
+      sh "#{CONFIG.cpp} #{CONFIG.cpp_options} #{t.source} > #{tempfile}" # ifort対応で、個別にcppしている。
+      sh "#{CONFIG.fortran} #{CONFIG.fortran_options} -c #{tempfile}"
+    }
+  end
+}
 
 task default: :compile
 
