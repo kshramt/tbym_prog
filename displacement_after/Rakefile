@@ -20,6 +20,7 @@ desc "コンパイルしてからテストする"
 task test: :compile do
   FileUtils.cd('test'){
     sh "../bin/displacement_after.exe"
+    sh "../bin/plot_displacement_after.bash > tmp.eps && epstopdf tmp.eps && open tmp.pdf"
   }
 end
 
