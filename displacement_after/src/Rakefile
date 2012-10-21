@@ -1,0 +1,54 @@
+# -*- coding: utf-8 -*-
+require 'fileutils'
+require 'tmpdir'
+require 'kshramt'
+
+fortran_options = %w[
+  -Wall
+  -ffree-line-length-none
+  -cpp
+  -C
+  -fmax-identifier-length=63
+  -fbacktrace -pipe
+].join(' ')
+
+# ~/.config/displacement_after/config.yamlを編集することで、コンパイラなどを変更できる。
+CONFIG = Class.new.class_eval{
+  include Kshramt::Config
+}.new('displacement_after',
+      rake: 'rake1.9',
+      cpp: 'cpp-mp-4.8', cpp_options: "-C",
+      fortran: 'gfortran-mp-4.8', fortran_options: fortran_options)
+
+exes = []
+BIN = lambda{|file|
+  exes << (exe = File.join('../bin', file))
+  exe
+}
+
+[
+ :test,
+].each{|t|
+  desc "上のディレクトリのRakefileに委譲される"
+  task t do
+    FileUtils.cd('..'){sh "#{CONFIG.rake} #{t}"}
+  end
+}
+
+file BIN["displacement_after.exe"] => %w[lib_character.o lib_io.o lib_displacement_after.o displacement_after.o] do |t|
+  sh "#{CONFIG.fortran} #{CONFIG.fortran_options} -o #{t.name} #{t.prerequisites.join(' ')}"
+end
+
+rule ".o" => ".f90" do |t|
+  Dir.mktmpdir{|tmpdir|
+    tempfile = File.join(tmpdir, t.source)
+    FileUtils.mkdir_p File.dirname(tempfile)
+    sh "#{CONFIG.cpp} #{CONFIG.cpp_options} #{t.source} > #{tempfile}" # ifort対応で、個別にcppしている。
+    sh "#{CONFIG.fortran} #{CONFIG.fortran_options} -c #{tempfile}"
+  }
+end
+
+task default: :compile
+
+desc "プログラムをコンパイルする"
+task compile: exes

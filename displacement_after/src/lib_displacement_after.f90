@@ -33,6 +33,10 @@ module lib_displacement_after
     module procedure read_config
   end interface read
 
+  interface validate
+    module procedure validate_config
+  end interface validate
+
   character(len = *), parameter:: INPUT_DIR = 'inputs/displacement_after'
   character(len = *), parameter:: OUTPUT_DIR = 'outputs/displacement_after'
 
@@ -116,7 +120,7 @@ contains
     read(io, nml = displacement_after_config)
     close(io)
 
-    call validate_config(config)
+    call validate(config)
   end subroutine read_config
 
   subroutine validate_config(config)
