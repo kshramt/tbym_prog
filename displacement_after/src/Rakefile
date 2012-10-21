@@ -17,8 +17,8 @@ CONFIG = Class.new.class_eval{
   include Kshramt::Config
 }.new('displacement_after',
       rake: 'rake1.9',
-      cpp: 'cpp-mp-4.8', cpp_options: "-C",
-      fortran: 'gfortran-mp-4.8', fortran_options: fortran_options)
+      cpp: 'cpp-mp-4.7', cpp_options: "-C",
+      fortran: 'gfortran-mp-4.7', fortran_options: fortran_options)
 
 exes = []
 BIN = lambda{|file|
