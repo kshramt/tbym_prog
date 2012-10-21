@@ -89,7 +89,7 @@ contains
     binnedheights%height = 0
 
     do i = 1, config%nBins
-      xLeft = width*(i - 1)
+      xLeft = width*(i - 1) + xMin
       xRight = xLeft + width
       binnedheights(i)%xCenter = (xLeft + xRight)/2
 
