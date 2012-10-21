@@ -24,6 +24,7 @@ program displacement_after
   use lib_io, only: new_unit
   use lib_displacement_after, only: DisplacementAfterConfig, BinnedHeight
   use lib_displacement_after, only: read, get, write
+  use lib_displacement_after, only: OUTPUT_DIR
 
   implicit none
 
@@ -100,9 +101,15 @@ program displacement_after
   ! k番目の粒子を構成する要素の個数はnset(k)です。
   ! binで区切って、それぞれのbinの中心のx座標と粒子の最大高さを求めます。
   ! 必要なパラメータは、binの数です。
-
   call get(binnedHeights, config, bdp(1), bdp(2), rc, xc, yc, nset)
+
   call write(binnedHeights)
+  call write(xc(1:nptotc, :), yc(1:nptotc, :), rc(1:nptotc, :), nset(1:nptotc))
+
+  call new_unit(io)
+  open(io, file = OUTPUT_DIR // '/' // 'box.dat', status = 'replace', action = 'write')
+  write(io, *) bdp
+  close(io)
 
   stop
 end program displacement_after
