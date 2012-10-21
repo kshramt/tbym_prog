@@ -22,18 +22,10 @@
 program displacement_after
   USE_UTILS_H
   use lib_io, only: new_unit
+  use lib_displacement_after, only: DisplacementAfterConfig, BinnedHeight
+  use lib_displacement_after, only: read, get, write
 
   implicit none
-
-  type DisplacementAfterConfig
-    integer:: nBins
-    integer:: nElementsParParticleMax
-  end type DisplacementAfterConfig
-
-  type BinnedHeights
-    Real:: xCenter, width, height
-    Logical:: isIncludeLeft     ! xL <= x < xRならば.true.。xL < x <= xRならば.false.
-  end type BinnedHeights
 
   Real :: dtime, gx, gy
   Integer :: mode1, mode2, mode3, nMater
@@ -45,10 +37,10 @@ program displacement_after
   Integer :: i, k, icr, nptotc, nptts1, nptts2, nParticlesTotal, imater, ik, iicr
   Integer, allocatable :: nset(:)
   Integer:: io
-  type(BinnedHeights), allocatable:: bins(:)
+  type(BinnedHeight), allocatable:: binnedHeights(:)
   type(DisplacementAfterConfig):: config
 
-  call load_config(config)
+  call read(config)
 
   !ファイルnew_in_gm.datを開く
   call new_unit(io)
@@ -109,67 +101,8 @@ program displacement_after
   ! binで区切って、それぞれのbinの中心のx座標と粒子の最大高さを求めます。
   ! 必要なパラメータは、binの数です。
 
-  call get_bins(config, bdp(1), bdp(2), rc, xc, yc, bins)
-
-  do i = 1, size(bins, 1)
-    print*, bins(i)%xCenter, bins(i)%height
-  end do
+  call get(binnedHeights, config, bdp(1), bdp(2), rc, xc, yc, nset)
+  call write(binnedHeights)
 
   stop
-
-contains
-
-  ! これが、メインのルーチン
-  subroutine get_bins(config, xMin, xMax, rc, xc, yc, bins)
-    type(DisplacementAfterConfig), intent(in):: config
-    real, intent(in):: xMin, xMax
-    real, intent(in):: rc(:, :), xc(:, :), yc(:, :)
-    type(BinnedHeights), intent(out), allocatable:: bins(:)
-
-    real:: width, xLeft, xRight, height
-    integer:: i, j, k
-
-    allocate(bins(1:config%nBins))
-    width = (xMax - xMin)/config%nBins
-    bins%width = width
-    bins%height = 0
-
-    do i = 1, config%nBins
-      xLeft = width*(i - 1)
-      xRight = xLeft + width
-      bins(i)%xCenter = (xLeft + xRight)/2
-
-      bins(i)%isIncludeLeft = .true.
-      do j = 1, size(yc, 1)
-        do k = 1, nset(j)
-          if(xLeft <= xc(j, k) .and. xc(j, k) < xRight)then
-            height =  yc(j, k) + rc(j, k)
-            if(height > bins(i)%height) bins(i)%height = height
-          end if
-        end do
-      end do
-    end do
-  end subroutine get_bins
-
-  ! WORKING_DIR/inputs/displacement_after_config.nml
-  ! に、このプログラムで使う様々なパラメタを登録しておく。
-  subroutine load_config(config)
-    type(DisplacementAfterConfig), intent(out):: config
-
-    integer:: io
-    namelist /displacement_after_config/ config
-
-    call new_unit(io)
-    open(unit = io, file = 'inputs/displacement_after.nml', status = 'old', action = 'read')
-    read(io, nml = displacement_after_config)
-    close(io)
-    call validate_config(config)
-  end subroutine load_config
-
-  subroutine validate_config(config)
-    type(DisplacementAfterConfig), intent(in):: config
-
-    RAISE_IF(config%nBins < 1)
-    RAISE_IF(config%nElementsParParticleMax < 1)
-  end subroutine validate_config
 end program displacement_after

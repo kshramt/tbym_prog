@@ -26,7 +26,7 @@ task test: :compile do
   }
 end
 
-file "displacement_after.exe" => %w[lib_character.o lib_io.o displacement_after.o] do |t|
+file "displacement_after.exe" => %w[lib_character.o lib_io.o lib_displacement_after.o displacement_after.o] do |t|
   sh "#{FORTRAN_COMPILER} #{FORTRAN_OPTIONS} -o #{t.name} #{t.prerequisites.join(' ')}"
 end
 
