@@ -144,8 +144,6 @@ contains
     end do
   end subroutine get_binned_heights
 
-  ! WORKING_DIR/inputs/displacement_after_config.nml
-  ! に、このプログラムで使う様々なパラメタを登録しておく。
   subroutine read_config(config)
     type(DisplacementAfterConfig), intent(out):: config
 
