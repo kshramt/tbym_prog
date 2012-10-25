@@ -9,8 +9,8 @@ GMT gmtset MEASURE_UNIT cm
 
 OUTPUT_DIR=outputs/displacement_after
 
-RANGE=$(cat ${OUTPUT_DIR}/box.dat | ruby -e "puts gets.split.join('/')")
-BIN_WIDTH=$(cat ${OUTPUT_DIR}/binned_heights/width.dat | ruby -e "print gets.strip")u
+RANGE=$(ruby -e "puts %x(cat ${OUTPUT_DIR}/box.dat).split.join('/')")
+BIN_WIDTH=$(ruby -e "print %x(cat ${OUTPUT_DIR}/binned_heights/width.dat).strip")u
 # 棒グラフ
 # -Jx0.5cは、rcが半径であるのに対してGMTの3カラム目は直径であることから、単位の変換などしなくてもちょうど良い具合に表示されるという性質を利用している。
 GMT psxy \
